@@ -6,8 +6,6 @@
 //
 
 import SwiftUI
-
-@main
 struct Assignment_iosApp: App {
     var body: some Scene {
         WindowGroup {
