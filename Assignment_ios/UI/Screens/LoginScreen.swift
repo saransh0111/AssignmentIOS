@@ -5,12 +5,13 @@ struct LoginScreen: View {
     @State private var userEmail: String = ""
     @State private var emailError: String? = nil
     @State private var navigateToHome = false
+   
     
     var body: some View {
         NavigationStack {
             ZStack {
                 // Full screen black background
-                Color.black
+                Color.white
                     .ignoresSafeArea(.all)
                 
                 VStack(alignment: .center, spacing: 32) {
@@ -44,11 +45,11 @@ extension LoginScreen {
         VStack(alignment: .center, spacing: 16) {
             Text("Rabbit Invest")
                 .font(Font.custom("Lato-Regular", size: 20))
-                .foregroundColor(.white)
+                .foregroundColor(.black)
             
             Text("Login")
                 .font(Font.custom("Lato-Regular", size: 36).weight(.semibold))
-                .foregroundColor(.white)
+                .foregroundColor(.black)
         }
     }
     
@@ -70,6 +71,7 @@ extension LoginScreen {
                     .padding()
                     .background(Color.white)
                     .cornerRadius(12)
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black, lineWidth: 1))
             }
         }
     }
@@ -77,6 +79,7 @@ extension LoginScreen {
     private var nextSubmitButton: some View {
         Button(action: {
             if isValidEmail(userEmail) {
+//                UserDefaults.standard.set(true, forKey: "signIn")
                 emailError = nil
                 navigateToHome = true
             } else {

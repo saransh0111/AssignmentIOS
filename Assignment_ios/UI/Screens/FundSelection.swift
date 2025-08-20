@@ -4,7 +4,6 @@
 //
 //  Created by Saransh Nirmalkar on 19/08/25.
 //
-
 import SwiftUI
 
 struct FundSelection: View {
@@ -12,6 +11,8 @@ struct FundSelection: View {
     @State private var selectedFunds: [Fund] = []
     @State private var searchText: String = ""
     @State private var navigateToComparison = false
+    @State private var selectedFundForDetail: Fund?
+    @State private var showingFundDetail = false
     
     private var filteredFunds: [Fund] {
         if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -31,7 +32,7 @@ struct FundSelection: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
-                .background(Color(.gray))
+                .background(Color(.systemGray5))
                 .cornerRadius(10)
                 .padding(.horizontal)
                 .padding(.top)
@@ -46,20 +47,12 @@ struct FundSelection: View {
                     Spacer()
                 } else {
                     List(filteredFunds, id: \.schemeCode) { fund in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(fund.schemeName).font(.headline)
-                                Text("Code: \(fund.schemeCode)").font(.caption).foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            let isSelected = selectedFunds.contains { $0.schemeCode == fund.schemeCode }
-                            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(isSelected ? .blue : .gray)
-                        }
-                        .padding(.vertical, 6)
-                        .contentShape(Rectangle())
-                        .background((selectedFunds.contains { $0.schemeCode == fund.schemeCode } ? Color.blue.opacity(0.1) : .clear).cornerRadius(8))
-                        .onTapGesture { toggleSelection(fund) }
+                        FundCardView(
+                            fund: fund,
+                            isSelected: selectedFunds.contains { $0.schemeCode == fund.schemeCode },
+                            onTap: { toggleSelection(fund) },
+                            onLongPress: { showFundDetail(fund) }
+                        )
                     }
                     .listStyle(.plain)
                 }
@@ -88,6 +81,11 @@ struct FundSelection: View {
             }
             .navigationTitle("Funds")
             .task { await viewModel.fetchFunds() }
+            .sheet(isPresented: $showingFundDetail) {
+                if let fund = selectedFundForDetail {
+                    FundDetailScreen(fund: fund)
+                }
+            }
         }
     }
     
@@ -98,9 +96,54 @@ struct FundSelection: View {
             selectedFunds.append(fund)
         }
     }
+    
+    private func showFundDetail(_ fund: Fund) {
+        selectedFundForDetail = fund
+        showingFundDetail = true
+    }
 }
 
-
+// MARK: - Fund Card View
+struct FundCardView: View {
+    let fund: Fund
+    let isSelected: Bool
+    let onTap: () -> Void
+    let onLongPress: () -> Void
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(fund.schemeName)
+                    .font(.headline)
+                    .foregroundColor(isSelected ? .white : .primary)
+                    .multilineTextAlignment(.leading)
+                Text("Code: \(fund.schemeCode)")
+                    .font(.caption)
+                    .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+            }
+            Spacer()
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isSelected ? Color.blue : Color.clear)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                onTap()
+            }
+        }
+        .onLongPressGesture(minimumDuration: 0.5) {
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedback.impactOccurred()
+            onLongPress()
+        }
+        .scaleEffect(isSelected ? 0.98 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isSelected)
+    }
+}
 
 struct FundSelection_Previews: PreviewProvider {
     static var previews: some View {

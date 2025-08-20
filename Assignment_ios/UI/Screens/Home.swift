@@ -6,11 +6,12 @@ struct Home: View {
     @State var navigateToLogin: Bool = false
     @State var navigateToFundselection: Bool = false
     @State var navigateToMyFunds: Bool = false
+    @StateObject private var localStorage = LocalFundStorage.shared
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black
+                Color.white
                     .ignoresSafeArea(.all)
                 
                 VStack(alignment: .center) {
@@ -20,35 +21,56 @@ struct Home: View {
                         Spacer()
                         Text("Welcome Home 👋")
                             .font(.largeTitle)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                         
                         Text("Logged in as: \(email)")
                             .font(.title3)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                         Spacer()
-                        Button(action: {
-                            navigateToFundselection = true
-                        }) {
-                            Text("Fund Selection")
-                                .font(.custom("Lato-Bold", size: 20))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(12)
-                        }
                         
-                        Button(action: {
-                            navigateToMyFunds = true
-                        }) {
-                            Text("My Funds")
-                                .font(.custom("Lato-Bold", size: 20))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(12)
-                        }
+//                        Button(action: {
+//                            navigateToFundselection = true
+//                        }) {
+//                            Text("Fund Selection")
+//                                .font(.custom("Lato-Bold", size: 20))
+//                                .foregroundColor(.white)
+//                                .frame(maxWidth: .infinity)
+//                                .padding()
+//                                .background(Color.blue)
+//                                .cornerRadius(12)
+//                        }
+//                        
+//                        Button(action: {
+//                            navigateToMyFunds = true
+//                        }) {
+//                            Text("My Funds")
+//                                .font(.custom("Lato-Bold", size: 20))
+//                                .foregroundColor(.white)
+//                                .frame(maxWidth: .infinity)
+//                                .padding()
+//                                .background(Color.blue)
+//                                .cornerRadius(12)
+//                        }
+                        
+                        NavigationLink(destination: FundSelection()) {
+                                           Text("Fund Selection")
+                                               .font(.custom("Lato-Bold", size: 20))
+                                               .foregroundColor(.white)
+                                               .frame(maxWidth: .infinity)
+                                               .padding()
+                                               .background(Color.blue)
+                                               .cornerRadius(12)
+                                       }
+
+                                       NavigationLink(destination: MyFundsScreen()) {
+                                           Text("My Funds")
+                                               .font(.custom("Lato-Bold", size: 20))
+                                               .foregroundColor(.white)
+                                               .frame(maxWidth: .infinity)
+                                               .padding()
+                                               .background(Color.blue)
+                                               .cornerRadius(12)
+                                       }
                         Spacer()
                     }
                     
@@ -56,6 +78,7 @@ struct Home: View {
                     
                     Button(action: {
                         TokenManager.shared.clearTokens()
+                        LocalFundStorage.shared.removeAllFunds()
                         UserDefaults.standard.set(false, forKey: "signIn")
                         navigateToLogin = true
                     }) {
@@ -71,9 +94,9 @@ struct Home: View {
                     NavigationLink(destination: LoginScreen(), isActive: $navigateToLogin) {
                         EmptyView()
                     }
-                    NavigationLink(destination: FundSelection(), isActive: $navigateToFundselection) {
-                        EmptyView()
-                    }
+//                    NavigationLink(destination: FundSelection(), isActive: $navigateToFundselection) {
+//                        EmptyView()
+//                    }
                 }
                 .padding(.horizontal, 32)
             }
